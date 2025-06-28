@@ -291,6 +291,18 @@ on_request: true)
       Quarantine.propagate(from: primary_container.path, to:)
     end
 
+
+    def forbidden_artifacts(artifact)
+      forbidden = ENV["HOMEBREW_FORBIDDEN_CASK_ARTIFACTS"]&.split(" ") || []
+      artifact_type = artifact.class.name.split("::").last.downcase
+      if forbidden.include?(artifact_type)
+        raise CaskCannotBeInstalledError.new(
+          @cask,
+          "Installation blocked: artifact type '#{artifact_type}' is forbidden by HOMEBREW_FORBIDDEN_CASK_ARTIFACTS."
+        )
+      end
+    end
+
     sig { params(predecessor: T.nilable(Cask)).void }
     def install_artifacts(predecessor: nil)
       already_installed_artifacts = []
@@ -298,6 +310,8 @@ on_request: true)
       odebug "Installing artifacts"
 
       artifacts.each do |artifact|
+        # Check if HOMEBREW_FORBIDDEN_CASK_ARTIFACTS is set and block forbidden artifacts
+        forbidden_artifacts(artifact) if ENV["HOMEBREW_FORBIDDEN_CASK_ARTIFACTS"]
         next unless artifact.respond_to?(:install_phase)
 
         odebug "Installing artifact of class #{artifact.class}"

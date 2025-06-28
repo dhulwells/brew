@@ -203,6 +203,10 @@ module Homebrew
         description: "Output this many lines of output on formula `system` failures.",
         default:     15,
       },
+      HOMEBREW_FORBIDDEN_CASK_ARTIFACTS:
+        descrption: "A space-separated list of casks. Homebrew will refuse to install a " \
+                     "cask artifact if its type is in this list",
+      },
       HOMEBREW_FORBIDDEN_CASKS:                  {
         description: "A space-separated list of casks. Homebrew will refuse to install a " \
                      "cask if it or any of its dependencies is on this list.",
